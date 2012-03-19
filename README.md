@@ -10,7 +10,7 @@ My personal Rails generator scripts inspired by [nifty-generators]
 ## Setup Guide
 Add the gem to your Gemfile.
 
-  gem "bravo-generators", :group => :development
+    gem "bravo-generators", :group => :development
 
 ## Contributing
 
