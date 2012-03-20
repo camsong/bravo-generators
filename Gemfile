@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in bravo_generators.gemspec
+# Specify your gem's dependencies in bravo-generators.gemspec
 gemspec
