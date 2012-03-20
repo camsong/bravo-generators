@@ -3,18 +3,13 @@ require 'generators/bravo'
 module Bravo
   module Generators
     class LayoutGenerator < Base
-      argument :layout_name, :type => :string, :default => 'application', :banner => 'layout_name'
-
-      class_option :haml, :desc => 'Generate HAML for view, and SASS for stylesheet.', :type => :boolean
+      argument :layout_name, :type => :string, :default => 'bravo', :banner => 'layout_name'
 
       def create_layout
-        if options.haml?
-          template 'layout.html.haml', "app/views/layouts/#{file_name}.html.haml"
-          copy_file 'stylesheet.sass', "public/stylesheets/sass/#{file_name}.sass"
-        else
-          template 'layout.html.erb', "app/views/layouts/#{file_name}.html.erb"
-          copy_file 'stylesheet.css', "public/stylesheets/#{file_name}.css"
-        end
+        template  'layout.html.erb', "app/views/layouts/#{file_name}.html.erb"
+        copy_file 'bravo.css', "app/assets/stylesheets/#{file_name}.css"
+        copy_file 'bravo.js', "app/assets/javascript/#{file_name}.js"
+
         copy_file 'layout_helper.rb', 'app/helpers/layout_helper.rb'
         copy_file 'error_messages_helper.rb', 'app/helpers/error_messages_helper.rb'
       end

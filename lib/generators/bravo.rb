@@ -11,6 +11,20 @@ module Bravo
         "rails generate bravo:#{generator_name} #{self.arguments.map{ |a| a.usage }.join(' ')} [options]"
       end
 
+      protected
+
+      def format
+        :html
+      end
+
+      def handler
+        :erb
+      end
+
+      def template_filename(name)
+        "views/" << [name, format, handler].compact.join(".")
+      end
+
       private
 
       def add_gem(name, options = {})

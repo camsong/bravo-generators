@@ -14,10 +14,9 @@ module Bravo
       class_option :skip_model, :desc => 'Don\'t generate a model or migration file.', :type => :boolean
       class_option :skip_migration, :desc => 'Don\'t generate migration file for model.', :type => :boolean
       class_option :skip_timestamps, :desc => 'Don\'t add timestamps to migration file.', :type => :boolean
-      class_option :skip_controller, :desc => 'Don\'t generate controller, helper, or views.', :type => :boolean
       class_option :invert, :desc => 'Generate all controller actions except these mentioned.', :type => :boolean
       class_option :namespace_model, :desc => 'If the resource is namespaced, include the model in the namespace.', :type => :boolean
-      
+
       class_option :testunit, :desc => 'Use test/unit for test files.', :group => 'Test framework', :type => :boolean
       class_option :rspec, :desc => 'Use RSpec for test files.', :group => 'Test framework', :type => :boolean
 
@@ -64,7 +63,7 @@ module Bravo
       end
 
       #def add_gems
-        #add_gem "mocha", :group => :test
+      #add_gem "mocha", :group => :test
       #end
 
       def create_model
@@ -83,45 +82,45 @@ module Bravo
       def create_migration
         unless @skip_model || options.skip_migration?
           migration_template 'migration.rb', "db/migrate/create_#{model_path.pluralize.gsub('/', '_')}.rb"
+          #FIXME use hook_for to use the default orm's migration, but now hook_for doesn't work
+          #hook_for :orm, :required => true
         end
       end
 
       def create_controller
-        unless options.skip_controller?
-          template 'controller.rb', "app/controllers/#{plural_name}_controller.rb"
+        template 'controller.rb', "app/controllers/#{plural_name}_controller.rb"
 
-          template 'helper.rb', "app/helpers/#{plural_name}_helper.rb"
+        template 'helper.rb', "app/helpers/#{plural_name}_helper.rb"
 
-          controller_actions.each do |action|
-            if %w[index show new edit].include?(action) # Actions with templates
-              template "views/#{view_language}/#{action}.html.#{view_language}", "app/views/#{plural_name}/#{action}.html.#{view_language}"
-            end
+        controller_actions.each do |action|
+          if %w[index show new edit].include?(action) # Actions with templates
+            template template_filename(action), "app/views/#{plural_name}/#{action}.html.erb"
           end
+        end
 
-          if form_partial?
-            template "views/#{view_language}/_form.html.#{view_language}", "app/views/#{plural_name}/_form.html.#{view_language}"
-          end
+        if form_partial?
+          template template_filename("_form"), "app/views/#{plural_name}/_form.html.erb"
+        end
 
-          namespaces = plural_name.split('/')
-          resource = namespaces.pop
-          route namespaces.reverse.inject("resources :#{resource}") { |acc, namespace|
-            "namespace(:#{namespace}){ #{acc} }"
-          }
+        namespaces = plural_name.split('/')
+        resource = namespaces.pop
+        route namespaces.reverse.inject("resources :#{resource}") { |acc, namespace|
+          "namespace(:#{namespace}){ #{acc} }"
+        }
 
-          if test_framework == :rspec
-            template "tests/#{test_framework}/controller.rb", "spec/controllers/#{plural_name}_controller_spec.rb"
-          else
-            template "tests/#{test_framework}/controller.rb", "test/functional/#{plural_name}_controller_test.rb"
-          end
+        if test_framework == :rspec
+          template "tests/#{test_framework}/controller.rb", "spec/controllers/#{plural_name}_controller_spec.rb"
+        else
+          template "tests/#{test_framework}/controller.rb", "test/functional/#{plural_name}_controller_test.rb"
         end
       end
 
       private
-	  
+
       def available_views
         %w(index edit show new _form)
       end
-	  
+
       def form_partial?
         actions? :new, :edit
       end
@@ -190,7 +189,7 @@ module Bravo
         if form_partial?
           "<%= render \"form\" %>"
         else
-          read_template("views/#{view_language}/_form.html.#{view_language}")
+          read_template(template_filename("_form"))
         end
       end
 
@@ -267,11 +266,6 @@ module Bravo
         class_name.constantize.columns.reject do |column|
           column.name.to_s =~ /^(id|created_at|updated_at)$/
         end
-      end
-
-      def view_language
-        #options.haml? ? 'haml' : 'erb'
-		'erb'
       end
 
       def test_framework

@@ -4,7 +4,7 @@
 #   helper :layout
 module LayoutHelper
   def title(page_title, show_title = true)
-    content_for(:title) { h(page_title.to_s) }
+    provide(:title) { h(page_title.to_s) }
     @show_title = show_title
   end
 
@@ -13,10 +13,10 @@ module LayoutHelper
   end
 
   def stylesheet(*args)
-    content_for(:head) { stylesheet_link_tag(*args) }
+    provide(:head) { stylesheet_link_tag(*args) }
   end
 
   def javascript(*args)
-    content_for(:head) { javascript_include_tag(*args) }
+    provide(:head) { javascript_include_tag(*args) }
   end
 end
