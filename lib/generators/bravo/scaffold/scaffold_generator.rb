@@ -17,11 +17,9 @@ module Bravo
       class_option :skip_controller, :desc => 'Don\'t generate controller, helper, or views.', :type => :boolean
       class_option :invert, :desc => 'Generate all controller actions except these mentioned.', :type => :boolean
       class_option :namespace_model, :desc => 'If the resource is namespaced, include the model in the namespace.', :type => :boolean
-      class_option :haml, :desc => 'Generate HAML views instead of ERB.', :type => :boolean
-
+      
       class_option :testunit, :desc => 'Use test/unit for test files.', :group => 'Test framework', :type => :boolean
       class_option :rspec, :desc => 'Use RSpec for test files.', :group => 'Test framework', :type => :boolean
-      class_option :shoulda, :desc => 'Use shoulda for test files.', :group => 'Test framework', :type => :boolean
 
       def initialize(*args, &block)
         super
@@ -65,9 +63,9 @@ module Bravo
         end
       end
 
-      def add_gems
-        add_gem "mocha", :group => :test
-      end
+      #def add_gems
+        #add_gem "mocha", :group => :test
+      #end
 
       def create_model
         unless @skip_model
@@ -119,7 +117,11 @@ module Bravo
       end
 
       private
-
+	  
+      def available_views
+        %w(index edit show new _form)
+      end
+	  
       def form_partial?
         actions? :new, :edit
       end
@@ -186,11 +188,7 @@ module Bravo
 
       def render_form
         if form_partial?
-          if options.haml?
-            "= render \"form\""
-          else
-            "<%= render \"form\" %>"
-          end
+          "<%= render \"form\" %>"
         else
           read_template("views/#{view_language}/_form.html.#{view_language}")
         end
@@ -272,7 +270,8 @@ module Bravo
       end
 
       def view_language
-        options.haml? ? 'haml' : 'erb'
+        #options.haml? ? 'haml' : 'erb'
+		'erb'
       end
 
       def test_framework
